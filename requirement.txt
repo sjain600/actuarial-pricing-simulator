@@ -1,6 +1,8 @@
-streamlit
+dash==2.9.3
 pandas
 numpy
-plotly
 scikit-learn
+plotly
+xgboost
 joblib
+gunicorn
