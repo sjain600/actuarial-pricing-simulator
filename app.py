@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.graph_objects as go
 import pickle
 import joblib
 
@@ -215,80 +214,6 @@ if predict_button:
     # Feature importance visualization
     st.subheader("Factor Contributions")
     
-    # Create a simple bar chart of feature values
-    feature_contributions = pd.DataFrame({
-        'Feature': ['Driver Age', 'Vehicle Age', 'Bonus-Malus', 'Density', 'Area', 'Fuel Type'],
-        'Value': [driv_age, veh_age, bonus_malus, density, area, veh_gas],
-        'Impact': ['Moderate' if 30 < driv_age < 70 else 'High' if driv_age < 25 else 'Moderate',
-                   'Low' if veh_age < 5 else 'Moderate' if veh_age < 15 else 'High',
-                   'High' if bonus_malus > 120 else 'Moderate' if bonus_malus > 105 else 'Low',
-                   'Moderate' if density > 500 else 'Low',
-                   'High' if area in ['E', 'F'] else 'Moderate' if area in ['C', 'D'] else 'Low',
-                   'Moderate' if veh_gas == 'D' else 'Low']
-    })
-    
-    fig = go.Figure(data=[go.Table(
-        header=dict(values=['Feature', 'Value', 'Risk Impact'],
-                   fill_color='paleturquoise',
-                   align='left'),
-        cells=dict(values=[feature_contributions.Feature, 
-                          feature_contributions.Value,
-                          feature_contributions.Impact],
-                  fill_color='lavender',
-                  align='left'))
-    ])
-    
-    fig.update_layout(height=250, margin=dict(l=0, r=0, t=0, b=0))
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Explanation
-    with st.expander("How is this calculated?"):
-        st.markdown("""
-        The prediction uses a **Poisson regression model** with a log link function:
-        
-        `log(claims) = log(exposure) + β₀ + β₁x₁ + ... + βₖxₖ`
-        
-        **Interpretation:**
-        - Each coefficient βᵢ represents the log of the multiplicative effect on claim rate
-        - exp(βᵢ) > 1 means the factor increases claim risk
-        - exp(βᵢ) < 1 means the factor decreases claim risk
-        
-        The model was trained on 678,013 French motor insurance policies and validated 
-        using 5-fold cross-validation.
-        """)
-
-else:
-    # Show placeholder when no prediction yet
-    st.info("👈 Adjust the parameters in the sidebar and click 'Predict' to see results")
-    
-    # Show sample visualization of the data
-    st.subheader("About the Dataset")
-    st.markdown("""
-    The model is trained on the **freMTPL2freq dataset**, which contains:
-    
-    - **678,013** motor insurance policies
-    - **11** policyholder and vehicle characteristics
-    - **Claim counts** during the exposure period
-    - **Exposure** in years (policy duration)
-    
-    The dataset represents a realistic portfolio of a French motor insurer.
-    """)
-    
-    # Show a sample distribution
-    fig = go.Figure()
-    fig.add_trace(go.Histogram(
-        x=np.random.gamma(shape=0.5, scale=0.1, size=1000),
-        nbinsx=50,
-        name='Sample Distribution'
-    ))
-    fig.update_layout(
-        title='Typical Claim Frequency Distribution',
-        xaxis_title='Claims per Year',
-        yaxis_title='Density',
-        showlegend=False
-    )
-    st.plotly_chart(fig, use_container_width=True)
-
 # Footer
 st.markdown("---")
 st.markdown("""
